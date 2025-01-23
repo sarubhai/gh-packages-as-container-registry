@@ -1,0 +1,5 @@
+bitnami/pgpool,^[0-9]+\.[0-9]+\.[0-9]+-.+-.+-.+
+bitnami/postgresql-repmgr,^[0-9]+\.[0-9]+\.[0-9]+-.+-.+-.+
+bitnami/elasticsearch,^[0-9]+\.[0-9]+\.[0-9]+-.+-.+-.+
+bitnami/kafka,^[0-9]+\.[0-9]+\.[0-9]+-.+-.+-.+
+bitnami/os-shell,^[0-9]+-.+-.+-.+

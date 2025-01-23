@@ -1,0 +1,65 @@
+name: Sync Container Images
+
+on:
+  workflow_dispatch:
+  
+  # Optional: Weekly schedule to sync images (every Monday)
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  sync-container-images:
+    runs-on: ubuntu-24.04
+
+    steps:
+      # Step 1: Checkout the repository to access container-images-pattern.txt
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 3: Read container-images-pattern.txt and process each image
+      - name: Process Docker Images
+        run: |
+          # Read the container-images-pattern.txt file
+          while IFS= read -r image; do
+            
+            # Extract the image name and pattern
+            image_name=$(echo "$image" | cut -d',' -f1)
+            image_pattern=$(echo "$image" | cut -d',' -f2)
+
+            # Get the latest image tag
+            image_tags=$(curl -s "https://hub.docker.com/v2/repositories/$image_name/tags/?page_size=100")
+            image_tag=$(echo "$image_tags" | jq -r '.results[].name' | grep -P "$image_pattern" | sort -r | head -n 1)
+
+
+            # Construct the target image name for GHCR
+            ghcr_image="ghcr.io/${{ github.repository_owner }}/$(echo "$image_name" | tr '/' '_'):$image_tag"
+
+            echo "Processing $image_name:$image_tag..."
+            
+            # Use docker manifest inspect to check if image exists in GHCR
+            manifest_check=$(docker manifest inspect "$ghcr_image" 2>&1 || true)
+
+            # Check if the image exists in GHCR
+            if [[ "$manifest_check" == *"manifest unknown"* ]]; then
+              echo "Image $ghcr_image not found in GHCR. Downloading from Docker Hub and uploading to GHCR."
+              
+              # Pull the image from Docker Hub
+              docker pull "$image_name:$image_tag"
+              
+              # Tag the image for GitHub Container Registry
+              docker tag "$image_name:$image_tag" "$ghcr_image"
+              
+              # Push the image to GitHub Container Registry
+              docker push "$ghcr_image"
+            else
+              echo "Image $ghcr_image already exists in GHCR. Skipping download and upload."
+            fi
+          done < container-images-pattern.txt
