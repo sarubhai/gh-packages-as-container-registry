@@ -1,5 +1,8 @@
 bitnami/pgpool:4.5.5-debian-12-r0
 bitnami/postgresql-repmgr:17.2.0-debian-12-r7
 bitnami/elasticsearch:8.17.1-debian-12-r0
-bitnami/kafka:3.9.0-debian-12-
+bitnami/kafka:3.9.0-debian-12-r4
 bitnami/os-shell:12-debian-12-r33
+bitnami/postgres-exporter:0.16.0-debian-12-r2
+bitnami/elastic-exporter:1.8.0-debian-12-r5
+bitnami/jmx-exporter:1.0.1-debian-12-r9

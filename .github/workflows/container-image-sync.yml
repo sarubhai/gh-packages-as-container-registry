@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   
   # Optional: Weekly schedule to sync images (every Monday)
-  schedule:
-    - cron: '0 0 * * 1'
+  # schedule:
+  #   - cron: '0 0 * * 1'
 
 jobs:
   sync-container-images:
